@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GroupMind — AI-Powered Group Projects for College Students</title>
+  <meta name="description" content="GroupMind uses AI to divide work fairly, keep your team in sync, and actually get the project done. Join the waitlist." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #7c3aed;
+      --purple-light: #a855f7;
+      --purple-dark: #5b21b6;
+      --blue: #2563eb;
+      --blue-light: #60a5fa;
+      --bg: #0a0a0f;
+      --bg-card: #13131a;
+      --bg-card2: #1a1a26;
+      --border: rgba(255,255,255,0.08);
+      --text: #f1f0ff;
+      --muted: #8b8aa0;
+      --grad: linear-gradient(135deg, #7c3aed, #2563eb);
+      --grad-text: linear-gradient(90deg, #c084fc, #60a5fa);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 48px;
+      background: rgba(10,10,15,0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
+      background: var(--grad-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo span { -webkit-text-fill-color: var(--text); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--grad); color: #fff; border: none; padding: 10px 22px;
+      border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: opacity .2s; text-decoration: none;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 120px 24px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; width: 900px; height: 900px;
+      background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+      top: -200px; left: 50%; transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%);
+      bottom: 0; right: -200px;
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.35);
+      color: #c084fc; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px;
+      padding: 6px 16px; border-radius: 99px; margin-bottom: 32px;
+      text-transform: uppercase;
+    }
+    .badge-dot { width: 6px; height: 6px; background: #a855f7; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    h1 {
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      font-weight: 900; letter-spacing: -2px; line-height: 1.05;
+      max-width: 900px; margin-bottom: 24px;
+    }
+    h1 .grad {
+      background: var(--grad-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.25rem); color: var(--muted);
+      max-width: 600px; margin-bottom: 48px; line-height: 1.7;
+    }
+    .hero-form {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+      width: 100%; max-width: 520px;
+    }
+    .hero-form input {
+      flex: 1; min-width: 240px; padding: 14px 20px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-size: 1rem;
+      outline: none; transition: border-color .2s;
+    }
+    .hero-form input:focus { border-color: var(--purple-light); }
+    .hero-form input::placeholder { color: var(--muted); }
+    .btn-primary {
+      background: var(--grad); color: #fff; border: none;
+      padding: 14px 28px; border-radius: 10px; font-size: 1rem;
+      font-weight: 700; cursor: pointer; white-space: nowrap;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 24px rgba(124,58,237,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(124,58,237,0.5); }
+    .btn-primary:active { transform: translateY(0); }
+    .hero-note { color: var(--muted); font-size: 0.8rem; margin-top: 16px; }
+    .hero-stats {
+      display: flex; gap: 48px; margin-top: 72px; flex-wrap: wrap; justify-content: center;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 800; background: var(--grad-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-label { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 100px 24px; }
+    .section-label {
+      text-align: center; text-transform: uppercase; letter-spacing: 2px;
+      font-size: 0.75rem; font-weight: 700; color: var(--purple-light); margin-bottom: 16px;
+    }
+    h2 {
+      text-align: center; font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800; letter-spacing: -1px; margin-bottom: 16px;
+    }
+    .section-sub {
+      text-align: center; color: var(--muted); font-size: 1.05rem;
+      max-width: 560px; margin: 0 auto 64px;
+    }
+    .container { max-width: 1160px; margin: 0 auto; }
+
+    /* ── FEATURES ── */
+    #features { background: linear-gradient(180deg, var(--bg) 0%, var(--bg-card) 100%); }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px;
+      transition: border-color .25s, transform .25s;
+    }
+    .feature-card:hover { border-color: rgba(124,58,237,0.5); transform: translateY(-4px); }
+    .feature-icon {
+      width: 52px; height: 52px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; margin-bottom: 20px;
+    }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+    .feature-card p { color: var(--muted); font-size: 0.92rem; line-height: 1.65; }
+
+    /* icon bg colors */
+    .ic-purple { background: rgba(124,58,237,0.15); }
+    .ic-blue   { background: rgba(37,99,235,0.15); }
+    .ic-pink   { background: rgba(236,72,153,0.15); }
+    .ic-green  { background: rgba(16,185,129,0.15); }
+    .ic-orange { background: rgba(245,158,11,0.15); }
+    .ic-cyan   { background: rgba(6,182,212,0.15); }
+    .ic-red    { background: rgba(239,68,68,0.15); }
+    .ic-indigo { background: rgba(99,102,241,0.15); }
+
+    /* ── HOW IT WORKS ── */
+    #how { background: var(--bg-card); }
+    .steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0; counter-reset: steps;
+    }
+    .step {
+      padding: 40px 32px; position: relative; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .step:last-child { border-right: none; }
+    .step-num {
+      font-size: 3.5rem; font-weight: 900; line-height: 1;
+      background: var(--grad-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 16px; display: block;
+    }
+    .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
+    .step p { color: var(--muted); font-size: 0.88rem; }
+
+    /* ── SOCIAL PROOF ── */
+    #testimonials { background: var(--bg); }
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .testimonial {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 32px;
+    }
+    .stars { color: #f59e0b; font-size: 1rem; margin-bottom: 16px; }
+    .testimonial blockquote { color: var(--text); font-size: 0.95rem; line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+    .reviewer { display: flex; align-items: center; gap: 12px; }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.9rem; color: #fff;
+    }
+    .reviewer-info strong { display: block; font-size: 0.9rem; font-weight: 600; }
+    .reviewer-info span { color: var(--muted); font-size: 0.8rem; }
+
+    /* ── WAITLIST FULL ── */
+    #waitlist {
+      background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(37,99,235,0.08));
+      border-top: 1px solid var(--border);
+    }
+    .waitlist-box {
+      max-width: 600px; margin: 0 auto; text-align: center;
+    }
+    .waitlist-form {
+      display: flex; flex-direction: column; gap: 16px; margin-top: 40px;
+    }
+    .waitlist-form .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .waitlist-form input, .waitlist-form select {
+      flex: 1; min-width: 180px; padding: 14px 20px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-size: 0.95rem;
+      outline: none; transition: border-color .2s; font-family: inherit;
+    }
+    .waitlist-form select option { background: #1a1a26; }
+    .waitlist-form input:focus, .waitlist-form select:focus { border-color: var(--purple-light); }
+    .waitlist-form input::placeholder { color: var(--muted); }
+    .waitlist-perks {
+      display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+      margin-top: 32px;
+    }
+    .perk { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; }
+    .perk-check { color: #10b981; font-weight: 700; }
+
+    /* ── SUCCESS STATE ── */
+    .success-msg {
+      display: none; text-align: center; padding: 32px;
+      background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 16px; margin-top: 24px;
+    }
+    .success-msg .check { font-size: 2.5rem; margin-bottom: 12px; }
+    .success-msg h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+    .success-msg p { color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 24px;
+      text-align: center; color: var(--muted); font-size: 0.85rem;
+    }
+    .footer-logo { font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; background: var(--grad-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; }
+    footer p { max-width: 480px; margin: 0 auto 24px; }
+    .footer-links { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      .hero-stats { gap: 28px; }
+      .step { border-right: none; border-bottom: 1px solid var(--border); }
+      .step:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Group<span>Mind</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+  </ul>
+  <a href="#waitlist" class="nav-cta">Join Waitlist</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge"><span class="badge-dot"></span> Now accepting early access</div>
+  <h1>Group projects that <span class="grad">actually work.</span></h1>
+  <p class="hero-sub">
+    GroupMind is the AI teammate every study group needs — it divides the work fairly,
+    keeps everyone in sync, and makes sure the project gets done (without the group chat drama).
+  </p>
+  <form class="hero-form" onsubmit="handleHeroSubmit(event)">
+    <input type="email" placeholder="your@university.edu" required id="hero-email" />
+    <button type="submit" class="btn-primary">Get Early Access</button>
+  </form>
+  <p class="hero-note">Free during beta &nbsp;·&nbsp; No credit card needed &nbsp;·&nbsp; Cancel anytime</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">4,800+</div><div class="stat-label">Students on waitlist</div></div>
+    <div class="stat"><div class="stat-num">120+</div><div class="stat-label">Universities represented</div></div>
+    <div class="stat"><div class="stat-num">89%</div><div class="stat-label">Said it'd reduce stress</div></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <p class="section-label">What GroupMind Does</p>
+    <h2>Everything your group project needs</h2>
+    <p class="section-sub">Stop juggling five apps. GroupMind brings your whole team into one AI-powered workspace.</p>
+    <div class="features-grid">
+
+      <div class="feature-card reveal">
+        <div class="feature-icon ic-purple">🧠</div>
+        <h3>Smart Task Division</h3>
+        <p>GroupMind analyzes each member's schedule, strengths, and availability, then splits work into fair, manageable tasks. No more arguing over who does what.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon ic-blue">💬</div>
+        <h3>Built-In Team Chat</h3>
+        <p>One unified chat for your group — no more losing updates across iMessage, Discord, and email. Threaded discussions, file sharing, and AI-summarized conversations keep everyone up to speed.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon ic-green">📅</div>
+        <h3>Meeting Finder</h3>
+        <p>Connect your calendars and GroupMind instantly finds times that work for the entire team. One click to schedule, automatic reminders, and built-in video call links.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon ic-orange">📊</div>
+        <h3>Project Health Score</h3>
+        <p>A live dashboard showing how on-track your project is — task completion, days until deadline, participation balance, and a predicted final quality score.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon ic-pink">✍️</div>
+        <h3>AI Writing Assistant</h3>
+        <p>Stuck on an outline? Need to merge five people's writing into one voice? GroupMind's AI drafts, edits, and combines sections without losing the grade-worthy content your team produced.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon ic-cyan">🔔</div>
+        <h3>Accountability Nudges</h3>
+        <p>Friendly (but persistent) reminders go directly to teammates who are falling behind, so you never have to be the awkward one sending "hey, did you finish your part?" texts.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon ic-indigo">🔗</div>
+        <h3>App Integrations</h3>
+        <p>Works with Google Docs, Canvas, Notion, Slack, GitHub, and your university LMS. Sync deadlines from your syllabus in seconds.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-icon ic-red">⚖️</div>
+        <h3>Conflict Resolution AI</h3>
+        <p>Disagreements happen. GroupMind mediates — summarizing both sides, suggesting compromises, and keeping the conversation productive so the work keeps moving.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <p class="section-label">How It Works</p>
+    <h2>From assignment to A+ in four steps</h2>
+    <p class="section-sub">Set up your project in under two minutes. GroupMind handles the coordination from there.</p>
+    <div class="steps">
+      <div class="step reveal">
+        <span class="step-num">01</span>
+        <h3>Create Your Group</h3>
+        <p>Invite teammates with a link or email. Connect your calendars and set your deadline.</p>
+      </div>
+      <div class="step reveal">
+        <span class="step-num">02</span>
+        <h3>AI Divides the Work</h3>
+        <p>GroupMind breaks the project into tasks and assigns them based on everyone's skills and schedule.</p>
+      </div>
+      <div class="step reveal">
+        <span class="step-num">03</span>
+        <h3>Collaborate in Real Time</h3>
+        <p>Chat, share files, hold AI-assisted meetings, and track everyone's progress in one place.</p>
+      </div>
+      <div class="step reveal">
+        <span class="step-num">04</span>
+        <h3>Submit With Confidence</h3>
+        <p>AI compiles and reviews the final deliverable, flags weak spots, and formats everything to spec.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <p class="section-label">Early Feedback</p>
+    <h2>Students are already obsessed</h2>
+    <p class="section-sub">From our beta survey with 400 college students who tried GroupMind's prototype.</p>
+    <div class="testimonials-grid">
+
+      <div class="testimonial reveal">
+        <div class="stars">★★★★★</div>
+        <blockquote>"I'm always the one who ends up doing everything. GroupMind actually made my teammates do their parts — the accountability nudges are ruthless in the best way."</blockquote>
+        <div class="reviewer">
+          <div class="avatar" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">JL</div>
+          <div class="reviewer-info">
+            <strong>Jordan L.</strong>
+            <span>Junior, Business — UNC Chapel Hill</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial reveal">
+        <div class="stars">★★★★★</div>
+        <blockquote>"Scheduling meetings used to take a full week of back and forth. GroupMind found an open slot for four people with completely different schedules in literally 10 seconds."</blockquote>
+        <div class="reviewer">
+          <div class="avatar" style="background:linear-gradient(135deg,#2563eb,#60a5fa)">RP</div>
+          <div class="reviewer-info">
+            <strong>Riya P.</strong>
+            <span>Sophomore, Computer Science — Georgia Tech</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial reveal">
+        <div class="stars">★★★★★</div>
+        <blockquote>"The writing assistant stitched together five different writing styles into something that actually sounded coherent. Our professor gave us the highest grade in the class."</blockquote>
+        <div class="reviewer">
+          <div class="avatar" style="background:linear-gradient(135deg,#ec4899,#f43f5e)">MT</div>
+          <div class="reviewer-info">
+            <strong>Marcus T.</strong>
+            <span>Senior, Communications — UCLA</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST FULL -->
+<section id="waitlist">
+  <div class="container">
+    <div class="waitlist-box">
+      <p class="section-label">Join the Waitlist</p>
+      <h2>Be first when we launch</h2>
+      <p class="section-sub" style="margin-bottom:0">Early access members get GroupMind free for a full semester, priority features, and a chance to shape the product.</p>
+
+      <form class="waitlist-form" id="waitlist-form" onsubmit="handleWaitlistSubmit(event)">
+        <div class="row">
+          <input type="text" placeholder="First name" required />
+          <input type="text" placeholder="Last name" required />
+        </div>
+        <input type="email" placeholder="University email (e.g. you@state.edu)" required />
+        <div class="row">
+          <input type="text" placeholder="University / College" required />
+          <select>
+            <option value="" disabled selected>Year in school</option>
+            <option>Freshman</option>
+            <option>Sophomore</option>
+            <option>Junior</option>
+            <option>Senior</option>
+            <option>Graduate Student</option>
+          </select>
+        </div>
+        <select>
+          <option value="" disabled selected>What's your biggest group project pain point?</option>
+          <option>One person ends up doing all the work</option>
+          <option>Scheduling meetings is a nightmare</option>
+          <option>No one communicates consistently</option>
+          <option>Combining everyone's work is a mess</option>
+          <option>Missing deadlines / poor time management</option>
+          <option>Conflict between teammates</option>
+        </select>
+        <button type="submit" class="btn-primary" style="font-size:1.05rem;padding:16px;">
+          Reserve My Spot &rarr;
+        </button>
+      </form>
+
+      <div class="success-msg" id="success-msg">
+        <div class="check">✅</div>
+        <h3>You're on the list!</h3>
+        <p>We'll email you the moment early access opens. Tell your group to sign up too — the more teammates who join, the faster we can get you started.</p>
+      </div>
+
+      <div class="waitlist-perks">
+        <div class="perk"><span class="perk-check">✓</span> Free beta access</div>
+        <div class="perk"><span class="perk-check">✓</span> No credit card</div>
+        <div class="perk"><span class="perk-check">✓</span> Shape the product</div>
+        <div class="perk"><span class="perk-check">✓</span> Founding member badge</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">GroupMind</div>
+  <p>Making group projects less painful, one semester at a time. Built with love by students, for students.</p>
+  <div class="footer-links">
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Contact Us</a>
+    <a href="#">Blog</a>
+    <a href="#">Twitter / X</a>
+  </div>
+  <p style="margin-top:24px;font-size:0.78rem">&copy; 2026 GroupMind, Inc. All rights reserved.</p>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Hero form — scroll to waitlist
+  function handleHeroSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('hero-email').value;
+    // Pre-fill email in waitlist form
+    const wlEmail = document.querySelector('#waitlist-form input[type="email"]');
+    if (wlEmail) wlEmail.value = email;
+    document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Waitlist form submit
+  function handleWaitlistSubmit(e) {
+    e.preventDefault();
+    document.getElementById('waitlist-form').style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+    // In production: POST form data to your backend / email service here
+  }
+</script>
+
+</body>
+</html>
