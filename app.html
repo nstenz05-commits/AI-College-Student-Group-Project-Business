@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GroupMind — App</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#7c3aed;--pl:#a855f7;--pd:#5b21b6;--b:#2563eb;--bl:#60a5fa;
+  --bg:#0a0a0f;--bg1:#13131a;--bg2:#1a1a26;--bg3:#222235;
+  --bdr:rgba(255,255,255,0.08);--txt:#f1f0ff;--mu:#8b8aa0;
+  --gr:#10b981;--rd:#ef4444;--or:#f59e0b;--cy:#06b6d4;
+  --grad:linear-gradient(135deg,#7c3aed,#2563eb);
+  --gradt:linear-gradient(90deg,#c084fc,#60a5fa);
+  --sw:240px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);line-height:1.5}
+
+/* ─ AUTH ─ */
+#auth-view{display:flex;align-items:center;justify-content:center;height:100vh;
+  background:radial-gradient(ellipse at 50% -10%,rgba(124,58,237,.18) 0%,transparent 60%),var(--bg)}
+.auth-card{background:var(--bg1);border:1px solid var(--bdr);border-radius:20px;padding:44px;width:100%;max-width:420px}
+.auth-logo{font-size:1.5rem;font-weight:900;text-align:center;margin-bottom:28px;
+  background:var(--gradt);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-tabs{display:flex;background:var(--bg2);border-radius:8px;padding:4px;margin-bottom:24px}
+.atab{flex:1;padding:8px;border:none;background:none;color:var(--mu);font-size:.88rem;font-weight:600;
+  cursor:pointer;border-radius:6px;transition:all .2s;font-family:inherit}
+.atab.on{background:var(--bg3);color:var(--txt)}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:5px}
+.fi{width:100%;padding:11px 15px;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;
+  color:var(--txt);font-size:.92rem;outline:none;transition:border-color .2s;font-family:inherit}
+.fi:focus{border-color:var(--pl)}
+.fi::placeholder{color:var(--mu)}
+.fi option{background:var(--bg2)}
+.btn{width:100%;padding:12px;border:none;border-radius:8px;font-size:.92rem;font-weight:700;cursor:pointer;
+  font-family:inherit;transition:opacity .2s,transform .15s}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn-p{background:var(--grad);color:#fff;box-shadow:0 4px 20px rgba(124,58,237,.3)}
+.btn-s{background:var(--bg2);color:var(--txt);border:1px solid var(--bdr)}
+.btn-sm{width:auto;padding:8px 16px;font-size:.82rem}
+.divider{text-align:center;color:var(--mu);font-size:.78rem;margin:12px 0}
+.row2{display:flex;gap:10px}.row2>*{flex:1}
+.err{color:var(--rd);font-size:.8rem;margin-top:6px;display:none}
+
+/* ─ APP LAYOUT ─ */
+#app-view{display:none;height:100vh;overflow:hidden;flex-direction:row}
+#app-view.on{display:flex}
+aside{width:var(--sw);min-width:var(--sw);background:var(--bg1);border-right:1px solid var(--bdr);
+  display:flex;flex-direction:column;overflow-y:auto}
+.s-logo{padding:18px 18px 10px;font-size:1.15rem;font-weight:900;
+  background:var(--gradt);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.s-sec{padding:6px 10px}
+.s-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu);
+  padding:8px 8px 4px}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;
+  font-size:.88rem;font-weight:500;color:var(--mu);transition:all .15s;border:none;background:none;
+  width:100%;text-align:left;font-family:inherit}
+.ni:hover{background:var(--bg2);color:var(--txt)}
+.ni.on{background:rgba(124,58,237,.15);color:var(--pl)}
+.ni .ico{font-size:.95rem;width:20px;text-align:center}
+.s-bot{margin-top:auto;padding:14px;border-top:1px solid var(--bdr)}
+.uchip{display:flex;align-items:center;gap:10px;padding:6px}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.72rem;color:#fff;flex-shrink:0}
+.av-lg{width:40px;height:40px;font-size:.85rem}
+.uname{font-size:.85rem;font-weight:600}
+.logout{font-size:.75rem;color:var(--mu);background:none;border:none;cursor:pointer;padding:0;font-family:inherit}
+.logout:hover{color:var(--rd)}
+
+/* ─ MAIN ─ */
+#content{flex:1;overflow-y:auto;background:var(--bg)}
+.panel{padding:28px;display:none}
+.panel.on{display:block}
+.ph{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.ph-l .pt{font-size:1.45rem;font-weight:800;letter-spacing:-.5px}
+.ph-l .ps{color:var(--mu);font-size:.86rem;margin-top:3px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:.72rem;font-weight:700}
+.chip-p{background:rgba(124,58,237,.15);color:var(--pl)}
+.chip-g{background:rgba(16,185,129,.15);color:var(--gr)}
+.chip-o{background:rgba(245,158,11,.15);color:var(--or)}
+.chip-r{background:rgba(239,68,68,.15);color:var(--rd)}
+
+/* ─ PROJECTS ─ */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.pcard{background:var(--bg1);border:1px solid var(--bdr);border-radius:14px;padding:22px;cursor:pointer;transition:all .2s}
+.pcard:hover{border-color:rgba(124,58,237,.45);transform:translateY(-2px)}
+.pcard-name{font-size:1rem;font-weight:700;margin-bottom:3px}
+.pcard-meta{color:var(--mu);font-size:.78rem;margin-bottom:14px}
+.pcard-foot{display:flex;align-items:center;justify-content:space-between}
+.mstack{display:flex}.mstack .av{margin-right:-7px;border:2px solid var(--bg1)}
+.hbadge{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:99px}
+.hbadge.hi{background:rgba(16,185,129,.15);color:var(--gr)}
+.hbadge.hm{background:rgba(245,158,11,.15);color:var(--or)}
+.hbadge.hl{background:rgba(239,68,68,.15);color:var(--rd)}
+.new-card{background:var(--bg1);border:2px dashed var(--bdr);border-radius:14px;padding:22px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;
+  min-height:130px;color:var(--mu);transition:all .2s}
+.new-card:hover{border-color:var(--pl);color:var(--pl)}
+
+/* ─ OVERVIEW ─ */
+.ov-grid{display:grid;grid-template-columns:260px 1fr;gap:18px;margin-bottom:18px}
+.card{background:var(--bg1);border:1px solid var(--bdr);border-radius:14px;padding:22px}
+.card-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu);margin-bottom:14px}
+.gauge-wrap{position:relative;width:130px;height:130px;margin:0 auto 14px}
+.gauge-bg{fill:none;stroke:var(--bg2);stroke-width:10}
+.gauge-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1s ease;
+  transform:rotate(-90deg);transform-origin:50% 50%}
+.gauge-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.gauge-num{font-size:1.8rem;font-weight:900}
+.gauge-lbl{font-size:.65rem;color:var(--mu);text-transform:uppercase;letter-spacing:1px}
+.health-title{font-size:.88rem;font-weight:700;text-align:center;margin-bottom:3px}
+.health-sub{font-size:.75rem;color:var(--mu);text-align:center}
+.stats-row{display:flex;gap:8px;margin-top:14px}
+.mstat{flex:1;background:var(--bg2);border-radius:8px;padding:10px;text-align:center}
+.mstat-n{font-size:1.1rem;font-weight:800}
+.mstat-l{font-size:.68rem;color:var(--mu);margin-top:1px}
+.act-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)}
+.act-item:last-child{border-bottom:none}
+.act-txt{font-size:.84rem;line-height:1.5}
+.act-time{font-size:.72rem;color:var(--mu);margin-top:2px}
+.mem-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--bdr)}
+.mem-row:last-child{border-bottom:none}
+.mem-info{flex:1}
+.mem-name{font-size:.88rem;font-weight:600}
+.mem-meta{font-size:.75rem;color:var(--mu)}
+.mem-tasks{text-align:right;font-size:.78rem;color:var(--mu);flex-shrink:0}
+.pbar{height:3px;background:var(--bg2);border-radius:2px;margin-top:5px;overflow:hidden}
+.pfill{height:100%;border-radius:2px;background:var(--grad)}
+.ai-banner{background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(37,99,235,.08));
+  border:1px solid rgba(124,58,237,.2);border-radius:12px;padding:18px 22px;
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.ai-banner h3{font-size:.9rem;font-weight:700;margin-bottom:3px}
+.ai-banner p{font-size:.78rem;color:var(--mu)}
+.ai-btn{padding:9px 16px;background:var(--grad);border:none;border-radius:8px;color:#fff;
+  font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:opacity .2s}
+.ai-btn:hover{opacity:.85}
+
+/* ─ TASKS ─ */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kcol{background:var(--bg1);border-radius:12px;padding:14px;min-height:380px}
+.kcol.dov{border:1px dashed rgba(124,58,237,.4);background:rgba(124,58,237,.04)}
+.kcol-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.kcol-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu)}
+.kcol-title.ip{color:var(--or)}.kcol-title.dn{color:var(--gr)}
+.kcnt{font-size:.72rem;font-weight:700;background:var(--bg2);color:var(--mu);padding:2px 7px;border-radius:99px}
+.tcard{background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;padding:13px;
+  margin-bottom:9px;cursor:grab;transition:border-color .2s,opacity .2s}
+.tcard:hover{border-color:rgba(124,58,237,.4)}
+.tcard.drag{opacity:.4}
+.tc-title{font-size:.88rem;font-weight:600;margin-bottom:5px}
+.tc-desc{font-size:.78rem;color:var(--mu);margin-bottom:9px;line-height:1.5}
+.tc-foot{display:flex;align-items:center;justify-content:space-between}
+.tc-due{font-size:.7rem;color:var(--mu)}.tc-due.od{color:var(--rd)}
+.tc-acts{display:flex;align-items:center;gap:5px}
+.tbtn{font-size:.7rem;padding:3px 8px;border-radius:4px;border:none;cursor:pointer;font-weight:600;font-family:inherit}
+.tbtn-td{background:rgba(139,138,160,.2);color:var(--mu)}
+.tbtn-ip{background:rgba(245,158,11,.2);color:var(--or)}
+.tbtn-dn{background:rgba(16,185,129,.2);color:var(--gr)}
+.add-t{width:100%;padding:9px;border:1px dashed var(--bdr);border-radius:7px;background:none;
+  color:var(--mu);font-size:.82rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.add-t:hover{border-color:var(--pl);color:var(--pl)}
+
+/* ─ CHAT ─ */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 120px)}
+.chat-msgs{flex:1;overflow-y:auto;padding:8px 0}
+.msg{display:flex;gap:10px;margin-bottom:14px}
+.msg.me{flex-direction:row-reverse}
+.mbub{max-width:62%;background:var(--bg1);border:1px solid var(--bdr);
+  border-radius:12px 12px 12px 4px;padding:10px 13px}
+.msg.me .mbub{background:rgba(124,58,237,.18);border-color:rgba(124,58,237,.3);border-radius:12px 12px 4px 12px}
+.msender{font-size:.72rem;font-weight:700;margin-bottom:3px}
+.mtext{font-size:.88rem;line-height:1.55}
+.mtime{font-size:.68rem;color:var(--mu);margin-top:3px}
+.chat-in{border-top:1px solid var(--bdr);padding:14px 0;display:flex;gap:9px;align-items:flex-end}
+.cinput{flex:1;padding:11px 14px;background:var(--bg1);border:1px solid var(--bdr);border-radius:10px;
+  color:var(--txt);font-size:.88rem;outline:none;resize:none;font-family:inherit;max-height:110px;
+  transition:border-color .2s}
+.cinput:focus{border-color:var(--pl)}
+.csend{padding:11px 16px;background:var(--grad);border:none;border-radius:10px;color:#fff;
+  cursor:pointer;font-size:.95rem;transition:opacity .2s}
+.csend:hover{opacity:.85}
+.ai-sum-box{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:9px;
+  padding:12px 14px;margin-bottom:14px;font-size:.85rem;line-height:1.6}
+.ai-sum-lbl{font-size:.68rem;font-weight:700;color:var(--pl);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+
+/* ─ SCHEDULE ─ */
+.sched-wrap{overflow-x:auto;border:1px solid var(--bdr);border-radius:12px}
+.sched{min-width:560px}
+.sched-hdr{display:grid;grid-template-columns:72px repeat(5,1fr);background:var(--bg1);border-bottom:1px solid var(--bdr)}
+.shc{padding:10px 6px;text-align:center;font-size:.75rem;font-weight:700;color:var(--mu)}
+.srow{display:grid;grid-template-columns:72px repeat(5,1fr);border-bottom:1px solid var(--bdr)}
+.srow:last-child{border-bottom:none}
+.stime{padding:10px 6px;font-size:.72rem;color:var(--mu);background:var(--bg1);display:flex;align-items:center;border-right:1px solid var(--bdr)}
+.scell{padding:4px;border-right:1px solid var(--bdr);cursor:pointer;transition:background .15s;min-height:40px}
+.scell:last-child{border-right:none}
+.scell:hover{background:rgba(124,58,237,.08)}
+.scell.mine{background:rgba(124,58,237,.2)}
+.scell.all{background:rgba(16,185,129,.2)}
+.scell.mine.all{background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(16,185,129,.25))}
+.sdots{display:flex;flex-wrap:wrap;gap:2px;padding:3px;justify-content:center}
+.sdot{width:6px;height:6px;border-radius:50%}
+.legend{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap}
+.leg-i{display:flex;align-items:center;gap:7px;font-size:.78rem;color:var(--mu)}
+.leg-d{width:12px;height:12px;border-radius:3px}
+.sug-card{background:var(--bg1);border:1px solid var(--bdr);border-radius:9px;padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sug-t{font-size:.9rem;font-weight:600}
+.sug-m{font-size:.75rem;color:var(--mu);margin-top:2px}
+.sec-lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mu);margin:20px 0 10px}
+
+/* ─ WRITING ─ */
+.wr-layout{display:grid;grid-template-columns:1fr 300px;gap:18px;height:calc(100vh - 140px)}
+.ed-area{display:flex;flex-direction:column}
+.ed-bar{display:flex;gap:7px;padding-bottom:10px;border-bottom:1px solid var(--bdr);margin-bottom:10px;flex-wrap:wrap}
+.ebar-btn{padding:5px 11px;background:var(--bg1);border:1px solid var(--bdr);border-radius:6px;
+  color:var(--mu);font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.ebar-btn:hover{border-color:var(--pl);color:var(--pl)}
+.editor{flex:1;width:100%;padding:18px;background:var(--bg1);border:1px solid var(--bdr);border-radius:11px;
+  color:var(--txt);font-size:.92rem;line-height:1.8;resize:none;outline:none;font-family:inherit;transition:border-color .2s}
+.editor:focus{border-color:rgba(124,58,237,.4)}
+.wcount{font-size:.72rem;color:var(--mu);margin-top:7px;text-align:right}
+.ai-panel{background:var(--bg1);border:1px solid var(--bdr);border-radius:11px;display:flex;flex-direction:column;overflow:hidden}
+.aip-hd{padding:13px 15px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px}
+.ai-dot{width:8px;height:8px;background:var(--gr);border-radius:50%}
+.aip-title{font-size:.88rem;font-weight:700}
+.ai-msgs{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:10px}
+.ai-msg{font-size:.82rem;line-height:1.65;border-radius:8px;padding:9px 11px}
+.ai-msg-u{background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.25);color:var(--txt)}
+.ai-msg-b{background:var(--bg2);border:1px solid var(--bdr);color:var(--txt)}
+.ai-msg-lbl{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.ai-msg-u .ai-msg-lbl{color:var(--pl)}.ai-msg-b .ai-msg-lbl{color:var(--mu)}
+.ai-typing{color:var(--mu);font-style:italic;font-size:.8rem;padding:9px 11px}
+.ai-quick-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:10px 12px;border-top:1px solid var(--bdr)}
+.aiq{font-size:.72rem;padding:4px 10px;background:var(--bg2);border:1px solid var(--bdr);border-radius:99px;
+  color:var(--mu);cursor:pointer;font-family:inherit;transition:all .2s}
+.aiq:hover{border-color:var(--pl);color:var(--pl)}
+.ai-in-wrap{padding:10px;border-top:1px solid var(--bdr);display:flex;gap:7px}
+.ai-in{flex:1;padding:8px 11px;background:var(--bg2);border:1px solid var(--bdr);border-radius:7px;
+  color:var(--txt);font-size:.82rem;outline:none;font-family:inherit;transition:border-color .2s}
+.ai-in:focus{border-color:var(--pl)}
+.ai-in::placeholder{color:var(--mu)}
+.ai-go{padding:8px 12px;background:var(--grad);border:none;border-radius:7px;color:#fff;cursor:pointer;font-size:.85rem;transition:opacity .2s}
+.ai-go:hover{opacity:.85}
+
+/* ─ MODAL ─ */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);
+  z-index:999;display:none;align-items:center;justify-content:center}
+.ov.open{display:flex}
+.modal{background:var(--bg1);border:1px solid var(--bdr);border-radius:18px;padding:30px;
+  width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-t{font-size:1.1rem;font-weight:800;margin-bottom:22px}
+.mfoot{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.mfoot .btn{width:auto;padding:9px 18px}
+
+/* ─ SCROLLBAR ─ */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg2);border-radius:3px}
+
+/* ─ UTILS ─ */
+.mt12{margin-top:12px}.mt18{margin-top:18px}.mt24{margin-top:24px}
+[hidden]{display:none!important}
+
+/* ─ RESPONSIVE ─ */
+@media(max-width:900px){
+  .kanban{grid-template-columns:1fr}
+  .wr-layout{grid-template-columns:1fr}
+  .ov-grid{grid-template-columns:1fr}
+  aside{width:200px;min-width:200px}
+}
+@media(max-width:640px){aside{display:none}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<!-- AUTH -->
+<div id="auth-view">
+  <div class="auth-card">
+    <div class="auth-logo">GroupMind</div>
+    <div class="auth-tabs">
+      <button class="atab on" onclick="authTab('login')">Sign In</button>
+      <button class="atab" onclick="authTab('register')">Sign Up</button>
+    </div>
+    <form id="login-form" onsubmit="doLogin(event)">
+      <div class="fg"><label>Email</label><input class="fi" type="email" id="le" placeholder="you@university.edu"/></div>
+      <div class="fg"><label>Password</label><input class="fi" type="password" id="lp" placeholder="••••••••"/></div>
+      <div class="err" id="lerr">Invalid email or password.</div>
+      <button class="btn btn-p" type="submit">Sign In</button>
+      <div class="divider">or</div>
+      <button class="btn btn-s" type="button" onclick="demoLogin()">Try Demo Account</button>
+    </form>
+    <form id="reg-form" onsubmit="doRegister(event)" hidden>
+      <div class="row2">
+        <div class="fg"><label>First Name</label><input class="fi" type="text" id="rf" placeholder="Alex" required/></div>
+        <div class="fg"><label>Last Name</label><input class="fi" type="text" id="rl" placeholder="Johnson" required/></div>
+      </div>
+      <div class="fg"><label>University Email</label><input class="fi" type="email" id="re" placeholder="you@university.edu" required/></div>
+      <div class="row2">
+        <div class="fg"><label>Major</label><input class="fi" type="text" id="rm" placeholder="Business"/></div>
+        <div class="fg"><label>Year</label>
+          <select class="fi" id="ry">
+            <option>Freshman</option><option>Sophomore</option>
+            <option selected>Junior</option><option>Senior</option><option>Graduate</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Password</label><input class="fi" type="password" id="rp" placeholder="••••••••" required/></div>
+      <div class="err" id="rerr">Email already in use.</div>
+      <button class="btn btn-p" type="submit">Create Account</button>
+    </form>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-view">
+  <aside>
+    <div class="s-logo">GroupMind</div>
+    <div class="s-sec">
+      <div class="s-lbl">Menu</div>
+      <button class="ni on" id="nav-projects" onclick="go('projects')"><span class="ico">🏠</span>My Projects</button>
+    </div>
+    <div class="s-sec" id="proj-nav" hidden>
+      <div class="s-lbl" id="proj-nav-lbl">Project</div>
+      <button class="ni" id="nav-overview" onclick="go('overview')"><span class="ico">📊</span>Overview</button>
+      <button class="ni" id="nav-tasks" onclick="go('tasks')"><span class="ico">✅</span>Tasks</button>
+      <button class="ni" id="nav-chat" onclick="go('chat')"><span class="ico">💬</span>Team Chat</button>
+      <button class="ni" id="nav-schedule" onclick="go('schedule')"><span class="ico">📅</span>Schedule</button>
+      <button class="ni" id="nav-writing" onclick="go('writing')"><span class="ico">✍️</span>Writing</button>
+    </div>
+    <div class="s-bot">
+      <div class="uchip">
+        <div class="av" id="s-av"></div>
+        <div>
+          <div class="uname" id="s-name"></div>
+          <button class="logout" onclick="doLogout()">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main id="content">
+    <!-- PROJECTS -->
+    <div class="panel on" id="panel-projects">
+      <div class="ph"><div class="ph-l"><div class="pt">My Projects</div><div class="ps">Manage all your group projects in one place</div></div>
+        <button class="btn btn-p btn-sm" onclick="openModal('modal-proj')">+ New Project</button>
+      </div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="panel" id="panel-overview">
+      <div class="ph">
+        <div class="ph-l"><div class="pt" id="ov-title"></div><div class="ps" id="ov-sub"></div></div>
+        <span class="chip chip-p" id="ov-due"></span>
+      </div>
+      <div class="ai-banner">
+        <div><h3>🧠 Let AI divide the work</h3><p>GroupMind analyzes your team and distributes tasks fairly based on current workload.</p></div>
+        <button class="ai-btn" onclick="aiDivide()">Divide Tasks with AI</button>
+      </div>
+      <div class="ov-grid">
+        <div class="card" style="text-align:center">
+          <div class="gauge-wrap">
+            <svg viewBox="0 0 120 120" width="130" height="130">
+              <circle class="gauge-bg" cx="60" cy="60" r="50"/>
+              <circle class="gauge-fill" id="gfill" cx="60" cy="60" r="50" stroke-dasharray="314" stroke-dashoffset="314"/>
+            </svg>
+            <div class="gauge-inner"><div class="gauge-num" id="gnum">0%</div><div class="gauge-lbl">Health</div></div>
+          </div>
+          <div class="health-title" id="hlbl"></div>
+          <div class="health-sub" id="hsub"></div>
+          <div class="stats-row">
+            <div class="mstat"><div class="mstat-n" id="s-done">0</div><div class="mstat-l">Done</div></div>
+            <div class="mstat"><div class="mstat-n" id="s-ip">0</div><div class="mstat-l">In Progress</div></div>
+            <div class="mstat"><div class="mstat-n" id="s-td">0</div><div class="mstat-l">To Do</div></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-title">Recent Activity</div><div id="act-feed"></div></div>
+      </div>
+      <div class="card mt18"><div class="card-title">Team Members</div><div id="mem-list"></div></div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="panel" id="panel-tasks">
+      <div class="ph">
+        <div class="ph-l"><div class="pt">Tasks</div><div class="ps">Drag cards between columns or click the arrow buttons to move</div></div>
+        <button class="btn btn-p btn-sm" onclick="openModal('modal-task')">+ Add Task</button>
+      </div>
+      <div class="kanban">
+        <div class="kcol" id="col-todo" ondragover="dov(event)" ondrop="drp(event,'todo')">
+          <div class="kcol-hd"><span class="kcol-title">To Do</span><span class="kcnt" id="cnt-todo">0</span></div>
+          <div id="tasks-todo"></div>
+          <button class="add-t" onclick="openModal('modal-task')">+ Add task</button>
+        </div>
+        <div class="kcol" id="col-in_progress" ondragover="dov(event)" ondrop="drp(event,'in_progress')">
+          <div class="kcol-hd"><span class="kcol-title ip">In Progress</span><span class="kcnt" id="cnt-in_progress">0</span></div>
+          <div id="tasks-in_progress"></div>
+        </div>
+        <div class="kcol" id="col-done" ondragover="dov(event)" ondrop="drp(event,'done')">
+          <div class="kcol-hd"><span class="kcol-title dn">Done</span><span class="kcnt" id="cnt-done">0</span></div>
+          <div id="tasks-done"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="panel" id="panel-chat">
+      <div class="ph">
+        <div class="ph-l"><div class="pt">Team Chat</div><div class="ps" id="chat-sub"></div></div>
+        <button class="btn btn-s btn-sm" onclick="chatSummary()">🧠 AI Summary</button>
+      </div>
+      <div class="chat-wrap">
+        <div class="chat-msgs" id="chat-msgs"></div>
+        <div class="chat-in">
+          <textarea class="cinput" id="cinput" rows="1" placeholder="Message your team..." onkeydown="chatKey(event)"></textarea>
+          <button class="csend" onclick="sendMsg()">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="panel" id="panel-schedule">
+      <div class="ph"><div class="ph-l"><div class="pt">Team Schedule</div><div class="ps">Click cells to mark your availability. Green = everyone free.</div></div></div>
+      <div class="sched-wrap"><div class="sched" id="sched-grid"></div></div>
+      <div class="legend">
+        <div class="leg-i"><div class="leg-d" style="background:rgba(124,58,237,.4)"></div>Your availability</div>
+        <div class="leg-i"><div class="leg-d" style="background:rgba(16,185,129,.4)"></div>Everyone free</div>
+      </div>
+      <div class="sec-lbl">Suggested Meeting Times</div>
+      <div id="sug-list"></div>
+    </div>
+
+    <!-- WRITING -->
+    <div class="panel" id="panel-writing">
+      <div class="ph"><div class="ph-l"><div class="pt">Writing Assistant</div><div class="ps">Draft and improve your sections with AI help — auto-saved.</div></div></div>
+      <div class="wr-layout">
+        <div class="ed-area">
+          <div class="ed-bar">
+            <button class="ebar-btn" onclick="ins('**bold**')"><b>B</b></button>
+            <button class="ebar-btn" onclick="ins('\n## Heading\n')">H</button>
+            <button class="ebar-btn" onclick="ins('\n- item')">List</button>
+            <button class="ebar-btn" onclick="clrEd()">Clear</button>
+            <button class="ebar-btn" onclick="cpyEd()">Copy All</button>
+          </div>
+          <textarea class="editor" id="editor" placeholder="Start writing here, or ask the AI to generate a draft..." oninput="edInput()"></textarea>
+          <div class="wcount" id="wcount">0 words</div>
+        </div>
+        <div class="ai-panel">
+          <div class="aip-hd"><div class="ai-dot"></div><div class="aip-title">GroupMind AI</div></div>
+          <div class="ai-msgs" id="ai-msgs">
+            <div class="ai-msg ai-msg-b"><div class="ai-msg-lbl">GroupMind AI</div>Hi! I can help you write outlines, improve drafts, fix grammar, and more. What are you working on?</div>
+          </div>
+          <div class="ai-quick-wrap">
+            <button class="aiq" onclick="aiQ('Write an outline')">Write outline</button>
+            <button class="aiq" onclick="aiQ('Improve my draft')">Improve draft</button>
+            <button class="aiq" onclick="aiQ('Make it more academic')">More academic</button>
+            <button class="aiq" onclick="aiQ('Summarize key points')">Summarize</button>
+            <button class="aiq" onclick="aiQ('Fix grammar and flow')">Fix grammar</button>
+          </div>
+          <div class="ai-in-wrap">
+            <input class="ai-in" id="ai-in" placeholder="Ask anything..." onkeydown="aiKey(event)"/>
+            <button class="ai-go" onclick="aiSend()">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: New Project -->
+<div class="ov" id="modal-proj">
+  <div class="modal">
+    <div class="modal-t">Create New Project</div>
+    <form onsubmit="saveProj(event)">
+      <div class="fg"><label>Project Name</label><input class="fi" id="pn" placeholder="Marketing Strategy Report" required/></div>
+      <div class="row2 mt12">
+        <div class="fg"><label>Course</label><input class="fi" id="pc" placeholder="BUS 301"/></div>
+        <div class="fg"><label>Due Date</label><input class="fi" type="date" id="pd" required/></div>
+      </div>
+      <div class="fg mt12"><label>Professor</label><input class="fi" id="pp" placeholder="Prof. Smith"/></div>
+      <div class="fg mt12"><label>Description</label><input class="fi" id="pdesc" placeholder="Brief project description"/></div>
+      <div class="fg mt12"><label>Invite Teammates (comma-separated emails)</label><input class="fi" id="pinv" placeholder="sam@uni.edu, jordan@uni.edu"/></div>
+      <div class="mfoot">
+        <button type="button" class="btn btn-s" onclick="closeModal('modal-proj')">Cancel</button>
+        <button type="submit" class="btn btn-p">Create Project</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: Add Task -->
+<div class="ov" id="modal-task">
+  <div class="modal">
+    <div class="modal-t">Add New Task</div>
+    <form onsubmit="saveTask(event)">
+      <div class="fg"><label>Task Title</label><input class="fi" id="tt" placeholder="e.g. Write introduction section" required/></div>
+      <div class="fg mt12"><label>Description</label><input class="fi" id="td" placeholder="What needs to be done?"/></div>
+      <div class="row2 mt12">
+        <div class="fg"><label>Assign To</label><select class="fi" id="ta"></select></div>
+        <div class="fg"><label>Due Date</label><input class="fi" type="date" id="tdd"/></div>
+      </div>
+      <div class="mfoot">
+        <button type="button" class="btn btn-s" onclick="closeModal('modal-task')">Cancel</button>
+        <button type="submit" class="btn btn-p">Add Task</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+// ── STORAGE ──────────────────────────────────────────────────
+const db={
+  g:k=>{try{return JSON.parse(localStorage.getItem('gm_'+k))}catch{return null}},
+  s:(k,v)=>localStorage.setItem('gm_'+k,JSON.stringify(v))
+};
+const COLORS=['#7c3aed','#2563eb','#ec4899','#10b981','#f59e0b','#06b6d4','#8b5cf6','#ef4444'];
+let CU=null,CP=null,dragId=null;
+
+// ── SEED DEMO DATA ────────────────────────────────────────────
+function seed(){
+  if(db.g('seeded'))return;
+  db.s('users',[
+    {id:'u1',name:'Alex Johnson',email:'demo@groupmind.app',pw:'demo',color:'#7c3aed',major:'Business',year:'Junior'},
+    {id:'u2',name:'Sam Lee',email:'sam@uni.edu',pw:'demo',color:'#2563eb',major:'Design',year:'Junior'},
+    {id:'u3',name:'Jordan Kim',email:'jordan@uni.edu',pw:'demo',color:'#ec4899',major:'Marketing',year:'Senior'},
+    {id:'u4',name:'Riley Chen',email:'riley@uni.edu',pw:'demo',color:'#10b981',major:'Computer Science',year:'Junior'}
+  ]);
+  db.s('projects',[{
+    id:'p1',name:'Marketing Strategy Report',course:'BUS 301',prof:'Prof. Williams',
+    due:'2026-04-28',desc:'Comprehensive marketing strategy for a local small business',
+    members:['u1','u2','u3','u4'],created:Date.now()
+  }]);
+  db.s('tasks',[
+    {id:'t1',pid:'p1',title:'Market Research',desc:'Analyze competitor landscape and market trends',to:'u1',status:'done',due:'2026-04-10'},
+    {id:'t2',pid:'p1',title:'SWOT Analysis',desc:'Complete detailed SWOT analysis for the business',to:'u2',status:'in_progress',due:'2026-04-18'},
+    {id:'t3',pid:'p1',title:'Target Audience Profile',desc:'Define customer personas and buying behavior',to:'u3',status:'in_progress',due:'2026-04-19'},
+    {id:'t4',pid:'p1',title:'Social Media Strategy',desc:'Develop a 3-month social media content plan',to:'u4',status:'todo',due:'2026-04-22'},
+    {id:'t5',pid:'p1',title:'Budget Projection',desc:'Create realistic marketing budget breakdown',to:'u1',status:'todo',due:'2026-04-24'},
+    {id:'t6',pid:'p1',title:'Final Presentation Slides',desc:'Build slides for the final deliverable',to:'u2',status:'todo',due:'2026-04-27'}
+  ]);
+  db.s('msgs_p1',[
+    {id:'m1',pid:'p1',uid:'u1',text:"Hey team! Finished the market research section — check the Writing tab.",ts:Date.now()-172800000},
+    {id:'m2',pid:'p1',uid:'u3',text:"Great work Alex! Almost done with target audience profiles. Should be ready tonight.",ts:Date.now()-129600000},
+    {id:'m3',pid:'p1',uid:'u2',text:"Working on SWOT now. Alex's competitor section is super useful as a reference.",ts:Date.now()-36000000},
+    {id:'m4',pid:'p1',uid:'u4',text:"When are we meeting this week? Need to sync on social media strategy before I start writing.",ts:Date.now()-7200000}
+  ]);
+  db.s('avail',{
+    p1:{
+      u1:{'Mon-8':1,'Mon-10':1,'Wed-8':1,'Wed-10':1,'Fri-8':1,'Fri-10':1},
+      u2:{'Tue-10':1,'Tue-12':1,'Thu-10':1,'Thu-12':1,'Mon-14':1},
+      u3:{'Mon-8':1,'Mon-10':1,'Tue-10':1,'Wed-14':1,'Fri-8':1},
+      u4:{'Mon-8':1,'Mon-10':1,'Wed-8':1,'Thu-14':1,'Fri-10':1}
+    }
+  });
+  db.s('draft_p1',`# Marketing Strategy Report — Market Research\n\n## Executive Summary\nAfter comprehensive research, we identified significant opportunities in the digital marketing space. The company holds a 12% local market share but has minimal online presence.\n\n## Market Overview\nOur target market consists primarily of millennials and Gen Z consumers aged 22–35, representing ~45% of the local population.\n\n- **Market size**: $2.3M annually\n- **Growth rate**: 8.5% year-over-year\n- **Digital adoption**: 73% of target customers discover businesses online first\n\n## Competitor Analysis\nThree main competitors were identified in the local area...`);
+  db.s('seeded',1);
+}
+
+// ── AUTH ─────────────────────────────────────────────────────
+function authTab(t){
+  document.querySelectorAll('.atab').forEach((el,i)=>el.classList.toggle('on',(i===0)===(t==='login')));
+  document.getElementById('login-form').hidden=t!=='login';
+  document.getElementById('reg-form').hidden=t!=='register';
+}
+function demoLogin(){
+  document.getElementById('le').value='demo@groupmind.app';
+  document.getElementById('lp').value='demo';
+  doLogin({preventDefault:()=>{}});
+}
+function doLogin(e){
+  e.preventDefault();
+  const email=document.getElementById('le').value.trim();
+  const pw=document.getElementById('lp').value;
+  const u=(db.g('users')||[]).find(u=>u.email===email&&u.pw===pw);
+  if(!u){document.getElementById('lerr').style.display='block';return;}
+  document.getElementById('lerr').style.display='none';
+  CU=u;db.s('sess',u.id);enterApp();
+}
+function doRegister(e){
+  e.preventDefault();
+  const email=document.getElementById('re').value.trim();
+  const users=db.g('users')||[];
+  if(users.find(u=>u.email===email)){document.getElementById('rerr').style.display='block';return;}
+  document.getElementById('rerr').style.display='none';
+  const u={
+    id:'u'+Date.now(),
+    name:document.getElementById('rf').value+' '+document.getElementById('rl').value,
+    email,pw:document.getElementById('rp').value,
+    major:document.getElementById('rm').value,
+    year:document.getElementById('ry').value,
+    color:COLORS[users.length%COLORS.length]
+  };
+  users.push(u);db.s('users',users);CU=u;db.s('sess',u.id);enterApp();
+}
+function doLogout(){
+  CU=null;CP=null;db.s('sess',null);
+  document.getElementById('app-view').classList.remove('on');
+  document.getElementById('auth-view').style.display='flex';
+}
+function enterApp(){
+  document.getElementById('auth-view').style.display='none';
+  document.getElementById('app-view').classList.add('on');
+  const av=document.getElementById('s-av');
+  av.textContent=ini(CU.name);av.style.background=CU.color;
+  document.getElementById('s-name').textContent=CU.name.split(' ')[0];
+  go('projects');
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function go(panel){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('panel-'+panel).classList.add('on');
+  const nav=document.getElementById('nav-'+panel);
+  if(nav)nav.classList.add('on');
+  if(panel==='projects'){
+    document.getElementById('nav-projects').classList.add('on');
+    document.getElementById('proj-nav').hidden=true;
+    renderProjects();
+  } else {
+    renderPanel(panel);
+  }
+}
+function openProj(id){
+  const projs=db.g('projects')||[];
+  CP=projs.find(p=>p.id===id);
+  if(!CP)return;
+  document.getElementById('proj-nav').hidden=false;
+  const lbl=CP.name;
+  document.getElementById('proj-nav-lbl').textContent=lbl.length>22?lbl.slice(0,22)+'…':lbl;
+  go('overview');
+}
+function renderPanel(p){
+  if(p==='overview')renderOverview();
+  else if(p==='tasks')renderTasks();
+  else if(p==='chat')renderChat();
+  else if(p==='schedule')renderSchedule();
+  else if(p==='writing')renderWriting();
+}
+
+// ── PROJECTS LIST ────────────────────────────────────────────
+function renderProjects(){
+  const projs=db.g('projects')||[];
+  const users=db.g('users')||[];
+  let h='';
+  projs.forEach(p=>{
+    const tasks=(db.g('tasks')||[]).filter(t=>t.pid===p.id);
+    const done=tasks.filter(t=>t.status==='done').length;
+    const pct=tasks.length?Math.round(done/tasks.length*100):0;
+    const hc=pct>=70?'hi':pct>=40?'hm':'hl';
+    const mems=p.members.map(id=>users.find(u=>u.id===id)).filter(Boolean);
+    const days=Math.ceil((new Date(p.due)-Date.now())/86400000);
+    h+=`<div class="pcard" onclick="openProj('${p.id}')">
+      <div class="pcard-name">${esc(p.name)}</div>
+      <div class="pcard-meta">${esc(p.course||'')}${p.prof?' · '+esc(p.prof):''}</div>
+      <div class="pcard-foot">
+        <div class="mstack">${mems.slice(0,4).map(m=>`<div class="av" style="background:${m.color}" title="${esc(m.name)}">${ini(m.name)}</div>`).join('')}</div>
+        <div style="text-align:right">
+          <div class="hbadge ${hc}">${pct}% done</div>
+          <div style="font-size:.68rem;color:var(--mu);margin-top:3px">${days>0?days+'d left':'Due today'}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  h+=`<div class="new-card" onclick="openModal('modal-proj')"><div style="font-size:1.6rem">+</div><div style="font-size:.88rem;font-weight:600">New Project</div></div>`;
+  document.getElementById('pgrid').innerHTML=h;
+}
+
+// ── OVERVIEW ─────────────────────────────────────────────────
+function renderOverview(){
+  if(!CP)return;
+  const tasks=(db.g('tasks')||[]).filter(t=>t.pid===CP.id);
+  const done=tasks.filter(t=>t.status==='done').length;
+  const ip=tasks.filter(t=>t.status==='in_progress').length;
+  const td=tasks.filter(t=>t.status==='todo').length;
+  const pct=tasks.length?Math.round(done/tasks.length*100):0;
+  const days=Math.ceil((new Date(CP.due)-Date.now())/86400000);
+  document.getElementById('ov-title').textContent=CP.name;
+  document.getElementById('ov-sub').textContent=(CP.course||'')+(CP.prof?' · '+CP.prof:'');
+  document.getElementById('ov-due').textContent=days>0?days+' days left':'Due today!';
+  // gauge
+  const gf=document.getElementById('gfill');
+  const offset=314-(pct/100*314);
+  gf.style.strokeDashoffset=offset;
+  gf.style.stroke=pct>=70?'#10b981':pct>=40?'#f59e0b':'#ef4444';
+  document.getElementById('gnum').textContent=pct+'%';
+  document.getElementById('hlbl').textContent=pct>=70?'Looking great!':pct>=40?'On track':'Needs attention';
+  document.getElementById('hsub').textContent=done+' of '+tasks.length+' tasks completed';
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-ip').textContent=ip;
+  document.getElementById('s-td').textContent=td;
+  // activity
+  const users=db.g('users')||[];
+  const msgs=(db.g('msgs_'+CP.id)||[]).slice(-5).reverse();
+  document.getElementById('act-feed').innerHTML=msgs.length?msgs.map(m=>{
+    const u=users.find(u=>u.id===m.uid)||{name:'Unknown',color:'#666'};
+    return `<div class="act-item">
+      <div class="av" style="background:${u.color};flex-shrink:0">${ini(u.name)}</div>
+      <div><div class="act-txt"><strong>${esc(u.name)}</strong> — ${esc(m.text.slice(0,75))}${m.text.length>75?'…':''}</div>
+      <div class="act-time">${ago(m.ts)}</div></div>
+    </div>`;
+  }).join(''):'<div style="color:var(--mu);font-size:.83rem">No activity yet. Start chatting!</div>';
+  // members
+  const mems=CP.members.map(id=>users.find(u=>u.id===id)).filter(Boolean);
+  document.getElementById('mem-list').innerHTML=mems.map(m=>{
+    const mt=tasks.filter(t=>t.to===m.id);
+    const md=mt.filter(t=>t.status==='done').length;
+    const p=mt.length?Math.round(md/mt.length*100):0;
+    return `<div class="mem-row">
+      <div class="av av-lg" style="background:${m.color}">${ini(m.name)}</div>
+      <div class="mem-info">
+        <div class="mem-name">${esc(m.name)}${m.id===CU.id?' <span class="chip chip-p">You</span>':''}</div>
+        <div class="mem-meta">${esc(m.major||'')}${m.year?' · '+m.year:''}</div>
+        <div class="pbar mt12"><div class="pfill" style="width:${p}%"></div></div>
+      </div>
+      <div class="mem-tasks">${md}/${mt.length} tasks</div>
+    </div>`;
+  }).join('');
+}
+function aiDivide(){
+  if(!CP)return;
+  const tasks=db.g('tasks')||[];
+  const proj=tasks.filter(t=>t.pid===CP.id&&t.status!=='done');
+  proj.forEach((t,i)=>{t.to=CP.members[i%CP.members.length]});
+  db.s('tasks',tasks);renderOverview();
+  alert('✅ Tasks redistributed evenly across all '+CP.members.length+' team members!');
+}
+
+// ── TASKS (KANBAN) ────────────────────────────────────────────
+function renderTasks(){
+  if(!CP)return;
+  const tasks=(db.g('tasks')||[]).filter(t=>t.pid===CP.id);
+  const users=db.g('users')||[];
+  // populate assign dropdown
+  const sel=document.getElementById('ta');
+  const mems=CP.members.map(id=>users.find(u=>u.id===id)).filter(Boolean);
+  sel.innerHTML=mems.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');
+  ['todo','in_progress','done'].forEach(st=>{
+    const col=tasks.filter(t=>t.status===st);
+    document.getElementById('cnt-'+st).textContent=col.length;
+    document.getElementById('tasks-'+st).innerHTML=col.map(t=>{
+      const u=users.find(u=>u.id===t.to);
+      const od=t.due&&new Date(t.due)<new Date()&&t.status!=='done';
+      const ns=st==='todo'?'in_progress':st==='in_progress'?'done':'todo';
+      const nl=st==='todo'?'→ Start':st==='in_progress'?'→ Done':'↩ Reopen';
+      return `<div class="tcard" draggable="true" ondragstart="dstart(event,'${t.id}')" ondragend="dend(event)">
+        <div class="tc-title">${esc(t.title)}</div>
+        ${t.desc?`<div class="tc-desc">${esc(t.desc)}</div>`:''}
+        <div class="tc-foot">
+          <div class="tc-due${od?' od':''}">${t.due?(od?'⚠ ':'')+fdate(t.due):''}</div>
+          <div class="tc-acts">
+            ${u?`<div class="av" style="background:${u.color};width:22px;height:22px;font-size:.62rem" title="${esc(u.name)}">${ini(u.name)}</div>`:''}
+            <button class="tbtn tbtn-${ns==='todo'?'td':ns==='in_progress'?'ip':'dn'}" onclick="mvTask('${t.id}','${ns}')">${nl}</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  });
+}
+function mvTask(id,st){
+  const tasks=db.g('tasks')||[];
+  const t=tasks.find(t=>t.id===id);
+  if(t){t.status=st;db.s('tasks',tasks);}
+  renderTasks();
+}
+function dstart(e,id){dragId=id;e.target.classList.add('drag')}
+function dend(e){e.target.classList.remove('drag')}
+function dov(e){e.preventDefault();e.currentTarget.classList.add('dov')}
+function drp(e,st){
+  e.preventDefault();
+  document.querySelectorAll('.kcol').forEach(c=>c.classList.remove('dov'));
+  if(dragId){mvTask(dragId,st);dragId=null;}
+}
+function saveTask(e){
+  e.preventDefault();
+  const tasks=db.g('tasks')||[];
+  tasks.push({id:'t'+Date.now(),pid:CP.id,title:document.getElementById('tt').value,
+    desc:document.getElementById('td').value,to:document.getElementById('ta').value,
+    due:document.getElementById('tdd').value,status:'todo'});
+  db.s('tasks',tasks);closeModal('modal-task');e.target.reset();renderTasks();
+}
+
+// ── CHAT ─────────────────────────────────────────────────────
+function renderChat(){
+  if(!CP)return;
+  document.getElementById('chat-sub').textContent=CP.name+' · '+CP.members.length+' members';
+  drawMsgs();
+}
+function drawMsgs(){
+  const msgs=db.g('msgs_'+CP.id)||[];
+  const users=db.g('users')||[];
+  const c=document.getElementById('chat-msgs');
+  c.innerHTML=msgs.map(m=>{
+    const u=users.find(u=>u.id===m.uid)||{name:'Unknown',color:'#555'};
+    const me=m.uid===CU.id;
+    return `<div class="msg${me?' me':''}">
+      <div class="av" style="background:${u.color}">${ini(u.name)}</div>
+      <div class="mbub">
+        ${!me?`<div class="msender" style="color:${u.color}">${esc(u.name)}</div>`:''}
+        <div class="mtext">${esc(m.text)}</div>
+        <div class="mtime">${ago(m.ts)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  c.scrollTop=c.scrollHeight;
+}
+function sendMsg(){
+  const inp=document.getElementById('cinput');
+  const text=inp.value.trim();
+  if(!text||!CP)return;
+  const msgs=db.g('msgs_'+CP.id)||[];
+  msgs.push({id:'m'+Date.now(),pid:CP.id,uid:CU.id,text,ts:Date.now()});
+  db.s('msgs_'+CP.id,msgs);inp.value='';drawMsgs();
+}
+function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function chatSummary(){
+  const msgs=db.g('msgs_'+CP.id)||[];
+  const users=db.g('users')||[];
+  if(!msgs.length)return;
+  const names=[...new Set(msgs.map(m=>(users.find(u=>u.id===m.uid)||{name:'Someone'}).name))];
+  const last=msgs[msgs.length-1];
+  const lu=(users.find(u=>u.id===last.uid)||{name:'Someone'}).name;
+  const summary=`Your team has sent ${msgs.length} messages. Active contributors: ${names.join(', ')}. Most recently, ${lu} said: "${last.text.slice(0,80)}${last.text.length>80?'…':''}". Key themes: project progress, task assignments, and scheduling.`;
+  const c=document.getElementById('chat-msgs');
+  const box=document.createElement('div');
+  box.className='ai-sum-box';
+  box.innerHTML=`<div class="ai-sum-lbl">🧠 AI Summary</div>${summary}`;
+  c.prepend(box);
+}
+
+// ── SCHEDULE ─────────────────────────────────────────────────
+const DAYS=['Mon','Tue','Wed','Thu','Fri'];
+const TIMES=['8am','10am','12pm','2pm','4pm','6pm'];
+const TKEYS=['8','10','12','14','16','18'];
+function renderSchedule(){
+  if(!CP)return;
+  const avail=db.g('avail')||{};
+  const pa=avail[CP.id]||{};
+  const users=db.g('users')||[];
+  const mems=CP.members.map(id=>users.find(u=>u.id===id)).filter(Boolean);
+  const mine=pa[CU.id]||{};
+  let h=`<div class="sched-hdr"><div class="shc"></div>${DAYS.map(d=>`<div class="shc">${d}</div>`).join('')}</div>`;
+  TIMES.forEach((t,ti)=>{
+    h+=`<div class="srow"><div class="stime">${t}</div>`;
+    DAYS.forEach(day=>{
+      const k=`${day}-${TKEYS[ti]}`;
+      const myA=!!mine[k];
+      const who=mems.filter(m=>!!(pa[m.id]||{})[k]);
+      const allF=mems.length>1&&who.length===mems.length;
+      h+=`<div class="scell${myA?' mine':''}${allF?' all':''}" onclick="togAvail('${k}')" title="${who.map(m=>m.name).join(', ')||'No one marked yet'}">
+        <div class="sdots">${who.map(m=>`<div class="sdot" style="background:${m.color}"></div>`).join('')}</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  });
+  document.getElementById('sched-grid').innerHTML=h;
+  // suggestions
+  const sugs=[];
+  DAYS.forEach(day=>TKEYS.forEach((tk,ti)=>{
+    const k=`${day}-${tk}`;
+    if(mems.length>1&&mems.every(m=>!!(pa[m.id]||{})[k]))sugs.push({day,time:TIMES[ti],k});
+  }));
+  const sc=document.getElementById('sug-list');
+  sc.innerHTML=sugs.length?sugs.slice(0,3).map(s=>`
+    <div class="sug-card">
+      <div><div class="sug-t">${s.day}, ${s.time}</div><div class="sug-m">All ${mems.length} members available</div></div>
+      <button class="btn btn-p btn-sm" onclick="schedMtg('${s.day}','${s.time}')">Schedule</button>
+    </div>`).join(''):'<div style="color:var(--mu);font-size:.83rem">No full-team overlap yet. Ask your teammates to mark their availability!</div>';
+}
+function togAvail(k){
+  const avail=db.g('avail')||{};
+  if(!avail[CP.id])avail[CP.id]={};
+  if(!avail[CP.id][CU.id])avail[CP.id][CU.id]={};
+  const m=avail[CP.id][CU.id];
+  if(m[k])delete m[k];else m[k]=1;
+  db.s('avail',avail);renderSchedule();
+}
+function schedMtg(day,time){
+  const msgs=db.g('msgs_'+CP.id)||[];
+  msgs.push({id:'m'+Date.now(),pid:CP.id,uid:CU.id,
+    text:`📅 Meeting scheduled for ${day} at ${time} — GroupMind found a time that works for the whole team!`,ts:Date.now()});
+  db.s('msgs_'+CP.id,msgs);
+  alert(`Meeting scheduled for ${day} at ${time}!\nA message was sent to the team chat.`);
+}
+
+// ── WRITING ASSISTANT ─────────────────────────────────────────
+function renderWriting(){
+  if(!CP)return;
+  const draft=db.g('draft_'+CP.id)||'';
+  document.getElementById('editor').value=draft;
+  updWC();
+}
+function edInput(){updWC();if(CP)db.s('draft_'+CP.id,document.getElementById('editor').value);}
+function updWC(){
+  const w=document.getElementById('editor').value.trim();
+  document.getElementById('wcount').textContent=(w?w.split(/\s+/).length:0)+' words';
+}
+function ins(t){
+  const ed=document.getElementById('editor');
+  const p=ed.selectionStart;
+  ed.value=ed.value.slice(0,p)+t+ed.value.slice(p);
+  ed.focus();edInput();
+}
+function clrEd(){if(confirm('Clear editor? This cannot be undone.')){document.getElementById('editor').value='';edInput();}}
+function cpyEd(){navigator.clipboard.writeText(document.getElementById('editor').value).then(()=>alert('Copied to clipboard!'));}
+
+const AI_R={
+  outline:()=>`Here's a suggested outline:\n\n**1. Introduction**\n- Background & context\n- Problem statement\n- Thesis/objective\n\n**2. Analysis**\n- Key findings & data\n- Stakeholder perspective\n- Supporting evidence\n\n**3. Recommendations**\n- Short-term actions\n- Long-term strategy\n- Implementation steps\n\n**4. Conclusion**\n- Summary of insights\n- Next steps & call to action\n\nWant me to expand any section?`,
+  improve:(txt)=>!txt||txt.length<50?'Add at least a paragraph to the editor and I\'ll help improve it!':`Here\'s how to strengthen your draft:\n\n**Clarity**: Add a topic sentence to each paragraph to guide the reader.\n\n**Evidence**: Strengthen claims with specific data and citations.\n\n**Flow**: Connect paragraphs with transitions: "Building on this...", "As a result..."\n\n**Conciseness**: Convert passive voice to active. Cut filler words.\n\n**Tone**: Keep it professional but accessible for an academic audience.`,
+  academic:()=>`To make your writing more academic:\n\n• **Replace casual language**: "a lot of" → "a significant number of"\n• **Use hedging**: "may suggest", "evidence indicates", "it appears that"\n• **Third person**: Replace "I think" with "The evidence suggests..."\n• **Precise vocabulary**: Use field-specific terminology\n• **Citations**: Format as (Author, Year) for APA style\n\nPaste a paragraph and I\'ll rewrite it in formal academic style!`,
+  summarize:(txt)=>!txt||txt.length<50?'Write some content first and I\'ll summarize it!':`**Summary**:\n\nYour draft covers the project\'s core topic with supporting analysis and a logical structure. The argument progresses clearly from context to recommendations.\n\n**Key takeaways**:\n• Main argument is clearly stated\n• Supporting evidence is present\n• Recommendations are actionable\n\nFor an abstract, aim for 150–200 words covering: objective, methods, findings, and conclusion.`,
+  grammar:(txt)=>!txt||txt.length<20?'Add content to the editor and I\'ll review it!':`**Grammar & Flow Review**:\n\n✅ Sentence structure looks clear overall.\n\n⚠ **Watch for**:\n• Run-on sentences — split at conjunctions\n• Comma splices — use a period or semicolon\n• Inconsistent verb tense — stick to one throughout\n• Overused words — vary your vocabulary\n\n**Tip**: Read your draft aloud. Anywhere you stumble is a sentence that needs rewriting.\n\nPaste a specific paragraph for a line-by-line revision!`,
+  default:()=>`I\'m here to help! Ask me to:\n\n• **Write an outline** — structured plan for your section\n• **Improve my draft** — specific suggestions\n• **Make it more academic** — formalize the language\n• **Summarize** — pull out key points\n• **Fix grammar** — review errors and flow\n\nOr describe what you\'re working on and I\'ll tailor my help!`
+};
+function getAIResp(prompt){
+  const p=prompt.toLowerCase();
+  const txt=document.getElementById('editor').value;
+  if(p.includes('outline'))return AI_R.outline();
+  if(p.includes('improve')||p.includes('better')||p.includes('edit'))return AI_R.improve(txt);
+  if(p.includes('academic')||p.includes('formal'))return AI_R.academic();
+  if(p.includes('summar'))return AI_R.summarize(txt);
+  if(p.includes('grammar')||p.includes('flow')||p.includes('fix'))return AI_R.grammar(txt);
+  return AI_R.default();
+}
+function aiQ(p){document.getElementById('ai-in').value=p;aiSend();}
+function aiSend(){
+  const inp=document.getElementById('ai-in');
+  const text=inp.value.trim();if(!text)return;
+  const c=document.getElementById('ai-msgs');
+  c.innerHTML+=`<div class="ai-msg ai-msg-u"><div class="ai-msg-lbl">You</div>${esc(text)}</div>`;
+  c.innerHTML+=`<div class="ai-typing" id="ai-typing">GroupMind is thinking...</div>`;
+  c.scrollTop=c.scrollHeight;inp.value='';
+  setTimeout(()=>{
+    const t=document.getElementById('ai-typing');if(t)t.remove();
+    const resp=getAIResp(text).replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    c.innerHTML+=`<div class="ai-msg ai-msg-b"><div class="ai-msg-lbl">GroupMind AI</div>${resp}</div>`;
+    c.scrollTop=c.scrollHeight;
+  },700);
+}
+function aiKey(e){if(e.key==='Enter'){e.preventDefault();aiSend();}}
+
+// ── MODALS ────────────────────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+function saveProj(e){
+  e.preventDefault();
+  const projs=db.g('projects')||[];
+  const users=db.g('users')||[];
+  const invStr=document.getElementById('pinv').value;
+  const invEmails=invStr.split(',').map(s=>s.trim()).filter(Boolean);
+  const invIds=invEmails.map(email=>{
+    let u=users.find(u=>u.email===email);
+    if(!u){u={id:'u'+Date.now()+Math.random().toString(36).slice(2),name:email.split('@')[0],email,pw:'demo',color:COLORS[users.length%COLORS.length],major:'',year:''};users.push(u);}
+    return u.id;
+  });
+  db.s('users',users);
+  projs.push({id:'p'+Date.now(),name:document.getElementById('pn').value,course:document.getElementById('pc').value,
+    prof:document.getElementById('pp').value,due:document.getElementById('pd').value,
+    desc:document.getElementById('pdesc').value,members:[CU.id,...invIds],created:Date.now()});
+  db.s('projects',projs);closeModal('modal-proj');e.target.reset();renderProjects();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function ini(name){return name.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function ago(ts){
+  const d=Date.now()-ts,m=Math.floor(d/60000),h=Math.floor(m/60),dy=Math.floor(h/24);
+  return dy>0?dy+'d ago':h>0?h+'h ago':m>0?m+'m ago':'just now';
+}
+function fdate(ds){
+  const d=new Date(ds+'T00:00:00');
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+// ── BOOT ─────────────────────────────────────────────────────
+seed();
+const sid=db.g('sess');
+if(sid){const u=(db.g('users')||[]).find(u=>u.id===sid);if(u){CU=u;enterApp();}}
+</script>
+</body>
+</html>
